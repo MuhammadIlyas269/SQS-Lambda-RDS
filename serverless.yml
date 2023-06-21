@@ -1,0 +1,48 @@
+service: sqslambda
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: us-east-1
+
+custom:
+  settings:
+    DB_USERNAME: "markaz"
+    DB_PASSWORD:
+      !Join [
+        "",
+        ["{{resolve:secretsmanager:", !Ref Secret, ":SecretString:password}}"],
+      ]
+    DB_NAME:
+      !Join [
+        "",
+        ["{{resolve:secretsmanager:", !Ref Secret, ":SecretString:dbname}}"],
+      ]
+
+package:
+  individually: true
+  exclude:
+    - layers/**
+    - node_modules/**
+  include:
+    - src/**
+
+plugins:
+  - serverless-lift
+  - serverless-iam-roles-per-function
+
+layers:
+  CustomModules:
+    path: ./layers/custom-modules
+    compatibleRuntimes:
+      - nodejs18.x
+
+functions:
+  - ${file(cfn/functions.yml)}
+constructs: ${file(cfn/sqs_queue.yml)}
+resources:
+  - ${file(cfn/vpc.yml)}
+  - ${file(cfn/rds.yml)}

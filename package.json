@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "serverless-iam-roles-per-function": "^3.2.0-e97ab49",
+    "serverless-lift": "^1.27.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.354.0",
+    "@aws-sdk/client-sqs": "^3.354.0",
+    "mysql": "^2.18.1",
+    "uuid": "^9.0.0"
+  }
+}

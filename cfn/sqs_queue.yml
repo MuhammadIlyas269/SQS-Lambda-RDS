@@ -1,0 +1,36 @@
+order-processing-queue:
+  type: queue
+  worker:
+    handler: src/order-processing-worker.handler
+    layers:
+      - { Ref: CustomModulesLambdaLayer }
+    vpc:
+      securityGroupIds:
+        - !GetAtt LambdaSecurityGroup.GroupId
+      subnetIds:
+        - !Ref SubnetOne
+        - !Ref SubnetTwo
+    environment:
+      DB_ENDPOINT: !GetAtt ERPDatabase.Endpoint.Address
+      DB_NAME: ${self:custom.settings.DB_NAME}
+      DB_PASSWORD: ${self:custom.settings.DB_PASSWORD}
+      DB_USERNAME: ${self:custom.settings.DB_USERNAME}
+      SQS_QUEUE_URL: ${construct:update-stock-queue.queueUrl}
+
+update-stock-queue:
+  type: queue
+  worker:
+    handler: src/update-stock.handler
+    layers:
+      - { Ref: CustomModulesLambdaLayer }
+    vpc:
+      securityGroupIds:
+        - !GetAtt LambdaSecurityGroup.GroupId
+      subnetIds:
+        - !Ref SubnetOne
+        - !Ref SubnetTwo
+    environment:
+      DB_ENDPOINT: !GetAtt ERPDatabase.Endpoint.Address
+      DB_NAME: ${self:custom.settings.DB_NAME}
+      DB_PASSWORD: ${self:custom.settings.DB_PASSWORD}
+      DB_USERNAME: ${self:custom.settings.DB_USERNAME}
